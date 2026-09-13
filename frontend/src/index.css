@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: dark;
+}
+
+::selection {
+  background: rgba(255, 45, 170, 0.28);
+  color: #F8F3FA;
+}
+
+/* Consistent, visible pink focus ring for keyboard users. */
+:focus-visible {
+  outline: 2px solid rgba(255, 79, 216, 0.7);
+  outline-offset: 2px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #08050D;
+  color: #F8F3FA;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* Align numeric metrics in tables and stat cards. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Respect users who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D0814;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A1542;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF2DAA;
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-gradient-electric {
+    background: linear-gradient(135deg, #FF2DAA, #FF4FD8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-green {
+    background: linear-gradient(135deg, #35E0A1, #22C55E);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #FF2DAA, #9B5CFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Very subtle atmospheric lighting for the app shell. Restrained by design -
+     the interface must still look premium with this removed. */
+  .bg-aurora {
+    background-image:
+      radial-gradient(circle at top right, rgba(255, 45, 170, 0.05), transparent 30%),
+      radial-gradient(circle at bottom left, rgba(155, 92, 255, 0.04), transparent 34%);
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(42, 21, 66, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42, 21, 66, 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .glass-panel {
+    background: rgba(13, 8, 20, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* Metadata eyebrow label - small, uppercase, muted. */
+  .eyebrow {
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8E8298;
+  }
+}
+
+/* Shared enterprise table system. */
+.vigil-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.vigil-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #160D24;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8E8298;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+.vigil-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+.vigil-table tbody tr {
+  transition: background-color 160ms ease;
+}
+.vigil-table tbody tr:hover {
+  background: rgba(255, 45, 170, 0.04);
+}
+.vigil-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* React Flow overrides */
+.react-flow__node {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+.react-flow__controls-button {
+  background: #120A1C !important;
+  border: 1px solid rgba(255, 79, 216, 0.14) !important;
+  color: #C9BFD0 !important;
+  fill: #C9BFD0 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #211034 !important;
+  color: #F8F3FA !important;
+}
+
+.react-flow__background {
+  background-color: #0D0814 !important;
+}
+
+/* Neutralise React Flow's built-in blue selection / resize styling so no blue
+   or cyan can appear anywhere on the Attack Paths canvas. */
+.react-flow__selection,
+.react-flow__nodesselection-rect {
+  background: rgba(255, 45, 170, 0.08) !important;
+  border: 1px dotted rgba(255, 79, 216, 0.6) !important;
+}
+
+.react-flow__node.selected,
+.react-flow__edge.selected .react-flow__edge-path {
+  outline: none;
+  border-color: #FF4FD8 !important;
+  stroke: #FF4FD8 !important;
+}
+
+.react-flow__resize-control.handle,
+.react-flow__resize-control.line {
+  border-color: #FF4FD8 !important;
+  background-color: #FF4FD8 !important;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
