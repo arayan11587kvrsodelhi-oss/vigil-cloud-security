@@ -1,4 +1,4 @@
-const API_BASE = 'https://YOUR-VIGIL-BACKEND.onrender.com/api/v1';
+const API_BASE = 'https://vigil-cloud-security.onrender.com/api/v1';
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${url}`, {
