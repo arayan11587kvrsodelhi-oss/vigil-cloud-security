@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  // GitHub Pages project site
   base: '/vigil-cloud-security/',
 
   plugins: [react()],
@@ -43,4 +42,3 @@ export default defineConfig({
     },
   },
 })
-```
