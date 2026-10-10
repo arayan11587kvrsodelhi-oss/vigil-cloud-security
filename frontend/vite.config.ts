@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  base: '/vigil-cloud-security/',
+  base: process.env.VERCEL === '1' ? '/' : '/vigil-cloud-security/',
 
   plugins: [react()],
 
