@@ -16,6 +16,25 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.core.config import settings
+
+
+def demo_mode_enabled() -> bool:
+    """Return True only when the operator explicitly opted into demo mode.
+
+    Demo fixtures exist for local development so the UI has something to render.
+    They are gated behind ``ENABLE_DEMO_MODE`` (default: off) so VIGIL never
+    presents simulated records as real security findings, and they are only ever
+    consulted for endpoints that have no database-backed implementation. Callers
+    must never use this to disguise a failed database query.
+    """
+    return bool(settings.ENABLE_DEMO_MODE)
+
+
+def simulated_response(payload: dict) -> dict:
+    """Tag a response as simulated and clearly not real telemetry."""
+    return {**payload, "source_state": "simulated", "simulated": True}
+
 # ---------------------------------------------------------------------------
 # Vulnerability catalogue
 # ---------------------------------------------------------------------------
@@ -627,3 +646,68 @@ DEMO_CONTAINERS: list[dict[str, Any]] = [
         "host": "k8s-worker-2",
     },
 ]
+
+
+# ---------------------------------------------------------------------------
+# Demo-mode vulnerability expansion (development only)
+# ---------------------------------------------------------------------------
+# This mirrors the legacy fixture expansion: the catalogue is expanded into
+# per-asset findings and only ever used when ENABLE_DEMO_MODE is on. It lives
+# here so demo mode has a single, clearly-labelled source of simulated records
+# and the production endpoints contain no fixture logic.
+
+from datetime import datetime, timedelta
+
+_DEMO_BASE_TIME = datetime(2024, 8, 1, 9, 0, 0)
+
+
+def build_demo_vulnerabilities() -> list[dict[str, Any]]:
+    """Expand the simulated catalogue into per-asset findings (demo mode only)."""
+    findings: list[dict[str, Any]] = []
+    for idx, entry in enumerate(VULNERABILITY_CATALOG):
+        component = entry["affected_component"]
+        matching = [a for a in DEMO_ASSETS if component in a.get("components", [])]
+        if matching:
+            matching.sort(
+                key=lambda a: (a["publicly_exposed"], a["criticality"]), reverse=True
+            )
+            asset = matching[0]
+        else:
+            asset = None
+
+        if entry["cisa_kev"] and entry["exploit_available"]:
+            status = "active"
+        elif entry["cisa_kev"]:
+            status = "in_triage"
+        elif entry["cvss_score"] >= 9.0:
+            status = "active"
+        else:
+            status = "in_triage" if idx % 3 == 0 else "fixed"
+
+        findings.append(
+            {
+                "id": f"vuln-{idx}",
+                "cve_id": entry["cve_id"],
+                "title": entry["title"],
+                "description": entry["description"],
+                "cvss_score": entry["cvss_score"],
+                "cvss_vector": entry["cvss_vector"],
+                "severity": cvss_to_severity(entry["cvss_score"]),
+                "cisa_kev": entry["cisa_kev"],
+                "exploit_available": entry["exploit_available"],
+                "affected_component": component,
+                "installed_version": entry["installed_version"],
+                "fixed_version": entry["fixed_version"],
+                "ecosystem": entry["ecosystem"],
+                "status": status,
+                "asset_id": asset["id"] if asset else None,
+                "asset_name": asset["name"] if asset else "unassigned",
+                "publicly_exposed": bool(asset and asset["publicly_exposed"]),
+                "discovered_at": (_DEMO_BASE_TIME - timedelta(hours=idx * 7)).isoformat(),
+                "updated_at": (
+                    _DEMO_BASE_TIME - timedelta(hours=max(0, idx * 7 - 3))
+                ).isoformat(),
+                "source_state": "simulated",
+            }
+        )
+    return findings

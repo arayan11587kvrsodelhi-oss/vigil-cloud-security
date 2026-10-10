@@ -4,7 +4,9 @@ router = APIRouter()
 
 # Provenance marker surfaced by the UI: these are SIMULATED detections, not the
 # output of a live secret scanner. Secret values are never stored or returned —
-# only a masked placeholder identifier.
+# only a masked placeholder identifier. This endpoint is NOT database-backed: the
+# secrets table would only hold real detections from a scanner that is not
+# connected, so it is left empty rather than seeded with fabricated secrets.
 SOURCE_STATE = "simulated"
 MASKED_VALUE = "[Protected Secret]"
 
@@ -186,11 +188,12 @@ async def get_secrets():
         "rotation_required": len([s for s in items if s["lifecycle"]["rotation_required"]]),
         "not_exposed": len([s for s in items if not s["exposed"]]),
         "source_state": SOURCE_STATE,
+        "simulated": True,
     }
 
 @router.get("/{secret_id}")
 async def get_secret(secret_id: str):
     for secret in _SECRETS:
         if secret["id"] == secret_id:
-            return _serialize(secret)
+            return {**_serialize(secret), "simulated": True}
     return {"error": "Secret not found"}

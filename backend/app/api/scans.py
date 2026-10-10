@@ -3,7 +3,10 @@ from datetime import datetime, timedelta
 router = APIRouter()
 
 # Provenance marker surfaced by the UI. Scan history is SIMULATED; no scanner
-# actually executes against infrastructure in this build.
+# actually executes against infrastructure in this build. This endpoint is NOT
+# database-backed: the scan_results table would only ever hold records produced by
+# a real scanner run, and none exists, so it is left empty rather than seeded with
+# fabricated scan history. Every response is tagged simulated=True.
 SOURCE_STATE = "simulated"
 
 _BASE_TIME = datetime(2024, 8, 1, 9, 0, 0)
@@ -59,6 +62,7 @@ def _build_scans() -> list[dict]:
     return scans
 DEMO_SCANS = _build_scans()
 
+
 @router.get("/")
 async def get_scans():
     return {
@@ -69,13 +73,14 @@ async def get_scans():
         "queued": len([s for s in DEMO_SCANS if s["status"] == "queued"]),
         "failed": len([s for s in DEMO_SCANS if s["status"] == "failed"]),
         "source_state": SOURCE_STATE,
+        "simulated": True,
     }
 
 @router.get("/{scan_id}")
 async def get_scan(scan_id: str):
     for scan in DEMO_SCANS:
         if scan["id"] == scan_id:
-            return scan
+            return {**scan, "simulated": True}
     return {"error": "Scan not found"}
 
 @router.post("/trigger")
@@ -91,4 +96,5 @@ async def trigger_scan(request: dict):
         "started_at": datetime.utcnow().isoformat(),
         "message": f"{scan_type} scan queued for {target} (simulated — no scanner executed)",
         "source_state": SOURCE_STATE,
+        "simulated": True,
     }

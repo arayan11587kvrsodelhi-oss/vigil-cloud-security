@@ -4,8 +4,9 @@ router = APIRouter()
 
 # Provenance marker surfaced by the UI. Attack paths are SIMULATED, derived from
 # the demo asset/vulnerability fixtures, and NOT produced by a live attack-graph
-# solver. The risk score is a demonstration score (see risk_factors below), not
-# a mathematically validated model.
+# solver. This endpoint is NOT database-backed: the attack_paths table exists but
+# no path-computation engine populates it, so returning stored rows would present
+# fabricated fixtures as findings. Every response is tagged simulated=True.
 SOURCE_STATE = "simulated"
 RISK_MODEL = "Demo Risk Score"
 
@@ -175,6 +176,7 @@ async def get_attack_paths():
         "critical": len([p for p in ATTACK_PATHS if p["risk_level"] == "critical"]),
         "high": len([p for p in ATTACK_PATHS if p["risk_level"] == "high"]),
         "source_state": SOURCE_STATE,
+        "simulated": True,
         "risk_model": RISK_MODEL,
     }
 
@@ -186,6 +188,7 @@ async def get_attack_path_stats():
         "high": len([p for p in ATTACK_PATHS if p["risk_level"] == "high"]),
         "avg_risk_score": round(sum(p["risk_score"] for p in ATTACK_PATHS) / len(ATTACK_PATHS), 1),
         "source_state": SOURCE_STATE,
+        "simulated": True,
         "risk_model": RISK_MODEL,
     }
 
@@ -193,5 +196,5 @@ async def get_attack_path_stats():
 async def get_attack_path(path_id: str):
     for path in ATTACK_PATHS:
         if path["id"] == path_id:
-            return path
+            return {**path, "simulated": True}
     return {"error": "Attack path not found"}

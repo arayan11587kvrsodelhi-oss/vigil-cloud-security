@@ -1,0 +1,25 @@
+# VIGIL backend - development & test dependencies
+#
+# Installs the full runtime requirement set plus the extra packages needed to run
+# the pytest suite. Install with:
+#
+#   pip install -r requirements-dev.txt
+#
+# Compatibility notes (do not relax these pins without re-running the suite):
+#   * FastAPI 0.104.1 requires AnyIO >=3.7.1,<4.0.0, so anyio is pinned to 3.7.1.
+#     The tests use pytest.mark.anyio with an explicit asyncio-only backend
+#     (see tests/conftest.py), which this pin satisfies.
+#   * httpx is already a runtime dependency (used by the tests' ASGI transport),
+#     so it is not repeated here.
+#   * trio is intentionally NOT included: the suite runs on the asyncio backend
+#     only, so installing trio is unnecessary.
+
+-r requirements.txt
+
+# Test runner.
+pytest==7.4.4
+
+# Async SQLite driver for the in-memory test database. The tests override the
+# get_db dependency to point at "sqlite+aiosqlite:///:memory:"; this driver is
+# required for that engine. It is test-only and never used by the application.
+aiosqlite==0.19.0
